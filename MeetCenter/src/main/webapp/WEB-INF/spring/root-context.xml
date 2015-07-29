@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- sqlSession을 생성하기 위해 SqlSessionFactory를 사용 -->
+	<!-- mapper 밑에 있는 sql문을 읽어와서 빈으로 생성 dataSource를 읽어와서 빈으로 생성 
+mybatis-config.xml을 읽어오도록 해줌 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="/WEB-INF/spring/mybatis-config.xml" />
+	</bean>
+	<!-- ORACLE과 연동을 해줌 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+	<context:property-placeholder location="classpath:jdbc.properties" />
+	<!-- Mybatis-Spring 연동모듈의 핵심 SqlSessionTemplate은 SqlSession을 구현하고 코드에서 
+SqlSession를 대체하는 역할을 한다. SqlSessionTemplate은 쓰레드에 안전하고 여러개의 DAO나  매퍼에서 공유할 수 있다. -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+	
+</beans>
